@@ -1,6 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Calendar, Globe, Lock, Sparkles } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Calendar, Globe, Lock, Sparkles, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { apiClient } from "@/lib/api-client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/create")({
   component: Create,
@@ -15,10 +17,51 @@ const bgClass: Record<(typeof colors)[number], string> = {
 };
 
 function Create() {
+  const navigate = useNavigate();
   const [emoji, setEmoji] = useState("🌸");
   const [color, setColor] = useState<(typeof colors)[number]>("pink");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const [maxPoints, setMaxPoints] = useState(100);
+  const [rules, setRules] = useState<string[]>([""]);
+  const [isLaunching, setIsLaunching] = useState(false);
+
+  const addRule = () => setRules([...rules, ""]);
+  const updateRule = (idx: number, val: string) => {
+    const next = [...rules];
+    next[idx] = val;
+    setRules(next);
+  };
+  const removeRule = (idx: number) => setRules(rules.filter((_, i) => i !== idx));
+
+  const handleLaunch = async () => {
+    if (!title || !description || rules.some(r => !r)) {
+      toast.error("Please fill in all required fields!");
+      return;
+    }
+
+    setIsLaunching(true);
+    try {
+      await apiClient.post('/quests', {
+        title,
+        description,
+        emoji,
+        color,
+        deadline,
+        visibility,
+        max_points: maxPoints,
+        rules: rules.filter(r => r.trim() !== "")
+      });
+      toast.success("Quest launched! 🚀");
+      navigate({ to: '/' });
+    } catch (err) {
+      toast.error("Failed to launch quest. Are you logged in?");
+    } finally {
+      setIsLaunching(false);
+    }
+  };
 
   return (
     <div className="space-y-5 max-w-3xl mx-auto">
@@ -70,20 +113,53 @@ function Create() {
 
         <Field label="What are hunters looking for?">
           <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             placeholder="e.g. Snap 8 different flowers blooming around campus this week."
             rows={3}
             className="w-full rounded-2xl bg-muted px-4 py-3 text-sm outline-none focus:ring-2 ring-primary/30"
           />
         </Field>
 
+        <Field label="Quest Rules (for the AI judge)">
+          <div className="space-y-2">
+            {rules.map((rule, idx) => (
+              <div key={idx} className="flex gap-2">
+                <input
+                  value={rule}
+                  onChange={(e) => updateRule(idx, e.target.value)}
+                  placeholder={`Rule #${idx + 1}`}
+                  className="flex-1 rounded-xl bg-muted px-4 py-2 text-sm outline-none focus:ring-2 ring-primary/30"
+                />
+                {rules.length > 1 && (
+                  <button onClick={() => removeRule(idx)} className="text-muted-foreground hover:text-destructive px-2"><Trash2 className="h-4 w-4" /></button>
+                )}
+              </div>
+            ))}
+            <button onClick={addRule} className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1">
+              <Plus className="h-3 w-3" /> Add another rule
+            </button>
+          </div>
+        </Field>
+
         <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Number of captures">
-            <input type="number" defaultValue={5} className="w-full rounded-2xl bg-muted px-4 py-3 outline-none focus:ring-2 ring-primary/30" />
+          <Field label="Total Points">
+            <input 
+              type="number" 
+              value={maxPoints} 
+              onChange={(e) => setMaxPoints(Number(e.target.value))}
+              className="w-full rounded-2xl bg-muted px-4 py-3 outline-none focus:ring-2 ring-primary/30" 
+            />
           </Field>
           <Field label="Deadline">
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input type="date" className="w-full rounded-2xl bg-muted pl-10 pr-4 py-3 outline-none focus:ring-2 ring-primary/30" />
+              <input 
+                type="date" 
+                value={deadline}
+                onChange={(e) => setDeadline(e.target.value)}
+                className="w-full rounded-2xl bg-muted pl-10 pr-4 py-3 outline-none focus:ring-2 ring-primary/30" 
+              />
             </div>
           </Field>
         </div>
@@ -96,8 +172,13 @@ function Create() {
         </Field>
       </section>
 
-      <button className="w-full rounded-full bg-primary text-primary-foreground px-5 py-4 font-display text-lg inline-flex items-center justify-center gap-2 shadow-pop">
-        <Sparkles className="h-5 w-5" /> Launch quest
+      <button 
+        disabled={isLaunching}
+        onClick={handleLaunch}
+        className="w-full rounded-full bg-primary text-primary-foreground px-5 py-4 font-display text-lg inline-flex items-center justify-center gap-2 shadow-pop disabled:opacity-50"
+      >
+        <Sparkles className="h-5 w-5" /> 
+        {isLaunching ? "Launching..." : "Launch quest"}
       </button>
     </div>
   );

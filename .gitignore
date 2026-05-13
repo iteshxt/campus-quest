@@ -7,6 +7,25 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# AI Service
+ai-service/node_modules
+ai-service/.env
+ai-service/flower.jpg
+ai-service/test-ai.js
+
+# backend
+backend/bask.jpg
+backend/.env
+backend/vendor
+
+
+.gemini
+.agents
+.dist
+.lovable
+.specstory
+.tanstack
+
 node_modules
 dist
 dist-ssr

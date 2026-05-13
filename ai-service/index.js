@@ -17,8 +17,14 @@ const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
-// Initialize Google GenAI (Ensure GOOGLE_API_KEY is set in your .env file)
-const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
+// Initialize Google GenAI
+const apiKey = process.env.GOOGLE_API_KEY;
+
+if (!apiKey) {
+  console.error('CRITICAL: GOOGLE_API_KEY is missing from environment variables!');
+}
+
+const ai = new GoogleGenAI({ apiKey: apiKey });
 
 const SYSTEM_PROMPT = `You are 'CampusQuest AI', an impartial judge for a campus scavenger hunt.
 Your job is to evaluate user-submitted photos against a specific set of rules.
