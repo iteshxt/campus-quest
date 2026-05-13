@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, Camera, Clock, Lock, Share2, Trophy, Users } from "lucide-react";
-import { colorMap, leaderboard, quests } from "@/lib/mock";
+import { colorMap, leaderboard, quests, type Quest } from "@/lib/mock";
 
 export const Route = createFileRoute("/quest/$id")({
   component: QuestDetail,
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/quest/$id")({
 });
 
 function QuestDetail() {
-  const { quest } = Route.useLoaderData();
+  const { quest } = Route.useLoaderData() as { quest: Quest };
   const c = colorMap[quest.color];
   const pct = Math.round((quest.submissions / quest.total) * 100);
 
