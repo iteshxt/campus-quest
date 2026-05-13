@@ -11,6 +11,15 @@ Route::get('/quests', [QuestController::class, 'index']);
 Route::get('/leaderboard', [UserController::class, 'leaderboard']);
 Route::get('/submissions/{submission}/image', [SubmissionController::class, 'image']);
 
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'healthy',
+        'timestamp' => now()->toIso8601String(),
+        'database' => \Illuminate\Support\Facades\DB::connection()->getPdo() ? 'connected' : 'disconnected',
+        'app_env' => config('app.env'),
+    ]);
+});
+
 // Protected routes (Supabase Auth)
 Route::middleware('auth.supabase')->group(function () {
     Route::get('/users/me', [UserController::class, 'me']);
