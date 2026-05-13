@@ -31,13 +31,17 @@ class ProcessSubmissionJob implements ShouldQueue
 
         try {
             $endpoint = "https://judge-service-campus-quest.vercel.app/api/evaluate";
+            
+            Log::info("Sending submission {$this->submission->id} to AI Judge...");
 
-            $response = Http::withoutVerifying()->post($endpoint, [
-                'quest_title'       => $quest->title,
-                'quest_description' => $quest->description,
-                'rules'             => $rulesArray,
-                'image_base64'      => $this->submission->image_base64,
-            ]);
+            $response = Http::withoutVerifying()
+                ->timeout(60) // AI needs time to think
+                ->post($endpoint, [
+                    'quest_title'       => $quest->title,
+                    'quest_description' => $quest->description,
+                    'rules'             => $rulesArray,
+                    'image_base64'      => $this->submission->image_base64,
+                ]);
 
             if ($response->successful()) {
                 $aiData = $response->json();
