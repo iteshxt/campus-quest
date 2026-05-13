@@ -43,7 +43,7 @@ export function AppShell() {
             const Icon = t.icon;
             if (t.primary) {
               return (
-                <Link key={t.to} to={t.to} className="-mt-6 h-14 w-14 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-pop ring-4 ring-background">
+                <Link key={t.to} to={t.to as never} className="-mt-6 h-14 w-14 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-pop ring-4 ring-background">
                   <Icon className="h-6 w-6" />
                 </Link>
               );
@@ -51,7 +51,7 @@ export function AppShell() {
             return (
               <Link
                 key={t.to}
-                to={t.to}
+                to={t.to as never}
                 className={`px-4 py-2 rounded-full flex flex-col items-center gap-0.5 text-[10px] font-semibold transition-colors ${
                   active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}
