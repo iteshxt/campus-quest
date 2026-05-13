@@ -9,6 +9,10 @@ export const Route = createFileRoute("/create")({
 
 const emojis = ["🌸","🗺️","🌈","🍜","🍃","🪑","📚","🎨","⚽","🎵","☕","🐾"];
 const colors = ["pink","mint","peach","sky","lemon","lilac"] as const;
+const bgClass: Record<(typeof colors)[number], string> = {
+  pink: "bg-pink", mint: "bg-mint", peach: "bg-peach",
+  sky: "bg-sky", lemon: "bg-lemon", lilac: "bg-lilac",
+};
 
 function Create() {
   const [emoji, setEmoji] = useState("🌸");
