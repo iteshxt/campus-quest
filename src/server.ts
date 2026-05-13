@@ -1,4 +1,4 @@
-import { createStartHandler } from "@tanstack/react-start/server-handler";
+import { createStartHandler } from "@tanstack/start/server";
 import { getRouter } from "./router";
 import { startInstance } from "./start";
 
